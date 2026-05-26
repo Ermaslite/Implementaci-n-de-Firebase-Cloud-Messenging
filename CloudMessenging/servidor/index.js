@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 // 1. Inicialización de Firebase Admin
-// Usamos el nombre del archivo que moviste a la carpeta
+// Usamos el archivo de credenciales que moviste
 const serviceAccount = require("./cloud-messenging-41407-firebase-adminsdk-fbsvc-1d79a09a22.json");
 
 admin.initializeApp({
@@ -31,6 +31,11 @@ app.post('/send', async (req, res) => {
     notification: {
       title: title,
       body: body
+    },
+    // Añadimos 'data' para que la app Android pueda capturar el texto
+    // y actualizar la interfaz de Compose automáticamente.
+    data: {
+      message: body
     },
     token: token
   };
