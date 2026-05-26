@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Envío FCM</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #6200ee;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3700b3;
+        }
+        #status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Enviar Notificación Push</h2>
+        <div class="form-group">
+            <label for="token">Token ID del Dispositivo:</label>
+            <input type="text" id="token" placeholder="Pega aquí el token de la app Android">
+        </div>
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" id="title" placeholder="Ej: Hola desde el Servidor">
+        </div>
+        <div class="form-group">
+            <label for="body">Mensaje:</label>
+            <textarea id="body" rows="3" placeholder="Escribe el contenido de la notificación"></textarea>
+        </div>
+        <button onclick="sendNotification()">Enviar Mensaje</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function sendNotification() {
+            const token = document.getElementById('token').value;
+            const title = document.getElementById('title').value;
+            const body = document.getElementById('body').value;
+            const statusDiv = document.getElementById('status');
+
+            if (!token || !title || !body) {
+                showStatus('Por favor, completa todos los campos', 'error');
+                return;
+            }
+
+            statusDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, title, body })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus('¡Mensaje enviado con éxito!', 'success');
+                } else {
+                    showStatus('Error: ' + (result.error || 'No se pudo enviar'), 'error');
+                }
+            } catch (error) {
+                showStatus('Error de conexión con el servidor', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerText = message;
+            statusDiv.className = type;
+            statusDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
