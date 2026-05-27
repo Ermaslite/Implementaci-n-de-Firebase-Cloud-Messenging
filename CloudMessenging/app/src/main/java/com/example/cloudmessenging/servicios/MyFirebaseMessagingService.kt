@@ -18,11 +18,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Log.d("FCM_MESSAGE", "Mensaje recibido de: ${remoteMessage.from}")
 
-        val messageBody = remoteMessage.notification?.body ?: remoteMessage.data["message"] ?: "Sin contenido"
-        MessagingRepo.updateMessage(messageBody)
-
-        remoteMessage.notification?.let {
-            Log.d("FCM_MESSAGE", "Cuerpo de la notificación: ${it.body}")
-        }
+        // Extraemos título y cuerpo tanto de la notificación como de los datos (data)
+        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"] ?: "Notificación"
+        val body = remoteMessage.data["message"] ?: remoteMessage.notification?.body ?: "Sin contenido"
+        
+        // Añadimos el mensaje con su título al historial
+        MessagingRepo.addMessage(title, body)
     }
 }

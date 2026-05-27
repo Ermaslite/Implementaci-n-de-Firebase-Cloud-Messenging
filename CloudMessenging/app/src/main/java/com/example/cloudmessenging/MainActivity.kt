@@ -1,6 +1,7 @@
 package com.example.cloudmessenging
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -18,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.example.cloudmessenging.datos.MessagingRepo
 import com.example.cloudmessenging.ui.mensajes.MessagingScreen
 import com.example.cloudmessenging.ui.mensajes.MessagingViewModel
 import com.example.cloudmessenging.ui.theme.CloudMessengingTheme
@@ -27,6 +29,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        handleIntent(intent)
+
         enableEdgeToEdge()
         setContent {
             CloudMessengingTheme {
@@ -38,6 +43,22 @@ class MainActivity : ComponentActivity() {
                 ) {
                     MessagingScreen(viewModel = viewModel)
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.extras?.let { extras ->
+            val title = extras.getString("gcm.notification.title") ?: extras.getString("title") ?: "Notificación"
+            val body = extras.getString("message") ?: extras.getString("gcm.notification.body")
+            
+            if (body != null) {
+                MessagingRepo.addMessage(title, body)
             }
         }
     }
